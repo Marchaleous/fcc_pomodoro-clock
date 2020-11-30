@@ -1,0 +1,8 @@
+12. When a session countdown reaches zero (NOTE: timer MUST reach 00:00), and a new countdown begins, the element with the id of "timer-label" should display a string indicating a break has begun.
+Timer has reached zero but didn't switch to Break time: expected 'Session' to not equal 'Session'
+
+13. When a session countdown reaches zero (NOTE: timer MUST reach 00:00), a new break countdown should begin, counting down from the value currently displayed in the id="break-length" element.
+Timer has reached zero but didn't switch to Break time: expected 'Session' to not equal 'Session'
+
+2. The audio element with id="beep" must be 1 second or longer.
+Audio element with id="beep" is not at least 1 second long.: expected 0.109501 to be above 1
