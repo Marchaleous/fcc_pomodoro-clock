@@ -7,47 +7,41 @@ class App extends Component {
     sessionTime: 25,
     isRunning: false,
     isOnBreak: false,
-    isAlarming: false,
-    countDownTime: 60 * 25 * 1000,
+    countDownTime: 60000 * 25,
+    timerLabel: 'Session',
   };
 
-  defaultCountDownTime = 25 * 60 * 1000;
+  // Default time = 25 minutes
+  defaultCountDownTime = 1500000;
 
-  formatTime = unformattedTime => {
-    const time = new Date(unformattedTime);
-    const minutes = time.getUTCHours() >= 1 ? 60 : time.getUTCMinutes();
-    const seconds = time.getUTCSeconds();
-
-    const timeString =
-      minutes.toString().padStart(2, '0') +
-      ':' +
-      seconds.toString().padStart(2, '0');
-
-    return timeString;
-  };
-
+  // Keeps track of time left and changes session when it hits zero
   countDown = () => {
     const clock = setInterval(() => {
       if (!this.state.isRunning) return clearInterval(clock);
+      if (this.state.countDownTime > 3659000)
+        this.setState({ countDownTime: 3659000 });
 
-      const timeString = this.formatTime(this.state.countDownTime);
+      const secondsLeft = this.state.countDownTime / 1000;
       this.setState({ countDownTime: this.state.countDownTime - 1000 });
 
-      if (!this.state.isOnBreak && timeString === '00:00') {
+      if (!this.state.isOnBreak && !secondsLeft) {
         this.setState({
           countDownTime: this.state.breakTime * 60 * 1000,
           isOnBreak: true,
+          timerLabel: 'Break',
         });
-      } else if (timeString === '00:00') {
+      } else if (!secondsLeft) {
+        this.soundAlarm();
         this.setState({
           countDownTime: this.state.sessionTime * 60 * 1000,
           isOnBreak: false,
+          timerLabel: 'Session',
         });
-        this.soundAlarm();
       }
     }, 1000);
   };
 
+  // Performs function associated with button clicked
   handleClick = e => {
     e.target.blur();
     const [button, adjustment] = e.target.id.split('-');
@@ -73,6 +67,7 @@ class App extends Component {
     }
   };
 
+  // Spinners for break time adjustment
   adjustBreakTime = adjustment => {
     if (this.state.isRunning) return;
     this.setState({
@@ -91,6 +86,7 @@ class App extends Component {
     });
   };
 
+  // Spinners for session time adjustment
   adjustSessionTime = adjustment => {
     if (this.state.isRunning) return;
     this.setState({
@@ -110,6 +106,7 @@ class App extends Component {
     });
   };
 
+  // Play/pause button for timer
   toggleStartStop = () => {
     this.setState({ isRunning: !this.state.isRunning });
     if (this.state.isRunning) {
@@ -117,26 +114,33 @@ class App extends Component {
     }
   };
 
+  // Sets timer back to default, paused state
   resetTimer = () => {
     this.setState({
       isRunning: false,
       breakTime: 5,
       sessionTime: 25,
       isOnBreak: false,
-      isAlarming: false,
       countDownTime: this.defaultCountDownTime,
+      timerLabel: 'Session',
     });
-    document.getElementById('beep').pause();
+    const audio = document.getElementById('beep');
+    audio.pause();
+    audio.currentTime = 0;
   };
 
+  // Event listener for button clicks
   componentDidMount() {
     document.addEventListener('click', this.handleClick);
   }
 
+  // Starts beeper alarm when break is over
   soundAlarm = () => {
     const sound = document.getElementById('beep');
     sound.play();
-    setTimeout(() => sound.pause(), 2800);
+    setTimeout(() => {
+      sound.pause();
+    }, 3000);
   };
 
   render() {
@@ -154,6 +158,7 @@ class App extends Component {
   }
 }
 
+// Break time adjustment component
 const Break = ({ breakTime }) => {
   return (
     <div>
@@ -171,6 +176,7 @@ const Break = ({ breakTime }) => {
   );
 };
 
+// Session time adjustment component
 const Session = ({ sessionTime }) => {
   return (
     <div>
@@ -188,11 +194,10 @@ const Session = ({ sessionTime }) => {
   );
 };
 
-const Timer = ({ props: { isRunning, isOnBreak, countDownTime } }) => {
-  const timerLabel = !isOnBreak ? 'Session' : 'Break';
-
-  const time = new Date(countDownTime);
-  let minutes = time.getUTCHours() >= 1 ? 60 : time.getUTCMinutes();
+// Time remaining section with play/pause and reset buttons
+const Timer = ({ props: { isRunning, countDownTime, timerLabel } }) => {
+  const time = new Date(+countDownTime);
+  const minutes = time.getUTCHours() >= 1 ? 60 : time.getUTCMinutes();
   const seconds = time.getUTCSeconds();
   const timeString =
     minutes.toString().padStart(2, '0') +
