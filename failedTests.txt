@@ -5,7 +5,3 @@ Timer has reached zero but didn't switch to Break time: expected 'Session' to no
 
 13. When a session countdown reaches zero (NOTE: timer MUST reach 00:00), a new break countdown should begin, counting down from the value currently displayed in the id="break-length" element.
 Timer has reached zero but didn't switch to Break time: expected 'Session' to not equal 'Session'
-
-#AUDIO
-3. The audio element with id of "beep" must stop playing and be rewound to the beginning when the element with the id of "reset" is clicked.
-Audio element was not rewound when reset was clicked. HINT: use the currentTime property of the audio element to rewind.: expected 1.585932 to equal 0
